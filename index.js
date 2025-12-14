@@ -23,9 +23,53 @@ async function run() {
         // await client.connect();
         const db = client.db('home-decor')
         const furnitureCollection = db.collection('furniture');
-        const furnitureRoutes = require('./routes/furnitureRoutes')
 
-        app.use('/furniture', furnitureRoutes(furnitureCollection))
+
+        // app.use('/furniture', furnitureRoutes(furnitureCollection))
+
+        app.get('/furniture', async (req, res) => {
+            const email = req.query.email
+            const query = {}
+            if (email) {
+                query.email = email
+            }
+            const result = await furnitureCollection.find(query).toArray();
+            res.send(result)
+        })
+        app.get('/furniture/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) }
+            const result = await furnitureCollection.findOne(query)
+            res.send(result)
+        })
+        app.post('/furniture', async (req, res) => {
+            const data = req.body
+            const result = await furnitureCollection.insertOne(data)
+            res.send(result)
+        })
+        app.patch('/furniture/:id', async (req, res) => {
+            const id = req.params.id;
+            const data = req.body;
+            const query = { _id: new ObjectId(id) };
+            const updateDoc = {
+                $set: data,
+            };
+            const result = await furnitureCollection.updateOne(query, updateDoc);
+            res.send(result);
+        })
+        app.delete('/furniture/:id', async (req, res) => {
+            const id = req.params.id
+            const query = {
+                _id: new ObjectId(id)
+            }
+            const result = await furnitureCollection.deleteOne(query)
+            res.send(result);
+        })
+
+
+
+
+
         // {_id:new ObjectId}
 
         // await client.db("admin").command({ ping: 1 });
